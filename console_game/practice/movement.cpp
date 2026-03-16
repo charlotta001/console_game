@@ -143,6 +143,8 @@ void update(){
     tailY[i] = tailY[i -1];
     }
 
+    
+
     if( tailLen > 0){
         tailX[0] = headX[0];
         tailY[0] = headY[0];
@@ -158,11 +160,17 @@ void update(){
 
     headX[0] += curdirX;
     headY[0] += curdirY;
+
 }
 
-
-    
-
+    for(int t = 2; t < tailLen; t++)
+    {
+        if(tailX[t] == headX[0] && tailY[t] == headY[0])
+        {
+            dir = STOP;
+        }
+        
+    }
 
     if(headX[0] == 0){
         headX[0] = WIDTH - 2;
