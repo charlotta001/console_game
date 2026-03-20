@@ -33,11 +33,10 @@ static const int col = 10;
 static const int row = 10;
 
 
-static int xPos_right = 1;
+static int xPos_right = 0;
 static int xPos_left = 10;
-static int yPos = 1;
 static int yPos_state = 1;
-static int state_delay = 1;
+static int loop_state = 0;
 
 
 Camera2D camera = { 0 };
@@ -86,7 +85,10 @@ static void setup(){
     float intervalColor = 0.7f;
 
     float timerRectangle = 0.0f;
-    float intervalRectangle = 1.0f;
+    float intervalRectangle = 0.1f;
+
+    bool isRight = false;
+    bool isLeft = false;
 
 
     Color recColora =  randomColor();
@@ -109,8 +111,9 @@ static void setup(){
             timerRectangle += dt;
             
             std::cout << "xPos_right :  " << xPos_right 
-                      << "xPos_left :  " << xPos_left 
+                      << "xPos_left :  "  << xPos_left 
                       << "|| timer Rectangle: " << timerRectangle 
+                      << " ypos_state: " << yPos_state 
                       << std::endl;
 
              // get random color
@@ -121,60 +124,56 @@ static void setup(){
             }
 
 
-            drawPatternRectangle(makeRectangle(10,yPos_state), recColora);  
+            if(isRight)
+            {
+                xPos_right = 1;
+                isRight = false;
+            } 
 
-
-            if(yPos_state % 2 != 0){
-                drawPatternRectangle(makeRectangle(xPos_right,yPos_state), recColora);
-            } else {
-                drawPatternRectangle(makeRectangle(xPos_left,yPos_state), recColora);
+            if(isLeft){
+                xPos_left = 10;
+                isLeft = false;
             }
-
+            
+           
             if(timerRectangle >= intervalRectangle){
+                
                 timerRectangle = 0.0f;
                 
-                if(xPos_right > 10){
-                    xPos_right = 1;
-                }
-                if(xPos_left < 1){
-                    xPos_left = 10;
-                }
-
-                if(yPos_state == 10){
-                    yPos_state = 1;
-                }
-                
-
                 // moving rectangle 
                 if(yPos_state % 2 != 0){
                     xPos_right++;
+                    if(xPos_right > 10){
+                        isRight = true;
+                        yPos_state++;
+                    }
                 } else {
                     xPos_left--;
+                    if(xPos_left < 1){
+                        isLeft = true;
+                        yPos_state++;
+                    }
                 }
-                    state_delay++;
-
-
-            
+                
+              if(yPos_state > 10){
+                yPos_state = 1;
+              }
+                
+              
+        
             } 
 
-            if(state_delay == 10){
-                state_delay = 1;
-                yPos_state++;
+        
+            if(yPos_state % 2 != 0 && xPos_right >= 1 && xPos_right <= 10){
+                drawPatternRectangle(makeRectangle(xPos_right,yPos_state), recColora);
+            } else if(xPos_left <= 10 && xPos_left >= 1) {
+                drawPatternRectangle(makeRectangle(xPos_left,yPos_state), recColora);
             }
 
-         
-            
-                    
-
-            
-            
-           
-
-            //DrawRectangleRec(rectangle, recColora);
-            // DrawRectangleRec(makeRectangle(10,10), recColorb);
-
+    
             DrawText(TextFormat("width: %i \nheigth: %i",GetScreenWidth(),GetScreenHeight()),20,30,30, BLUE);
             DrawText(TextFormat("getframetime: %f",dt),20,100,30, BLUE);
+            DrawText(TextFormat("xPos_right: %d\n xPos_left: %d", xPos_right, xPos_left),20,130,20,RED);
             DrawFPS(10, 10);
             drawGrid();
             ClearBackground(WHITE);
