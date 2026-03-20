@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <math.h>
 #include "rlgl.h"       //3d required
-#include "raymath.h"    // 2d required
+#include "raymath.h"    // 3d required
 #include <math.h>
 
 
@@ -33,6 +33,13 @@ static const int col = 10;
 static const int row = 10;
 
 
+static int xPos_right = 1;
+static int xPos_left = 10;
+static int yPos = 1;
+static int yPos_state = 1;
+static int state_delay = 1;
+
+
 Camera2D camera = { 0 };
 Rectangle rectangle = {400,300,80,60};
 
@@ -50,6 +57,7 @@ static void setup();
 static void drawGrid();
 static Color randomColor();
 static Rectangle makeRectangle(int x, int y);
+static void drawPatternRectangle(Rectangle rec, Color color);
 
 // ==============================================================
                     /* entry point run the proram */
@@ -65,7 +73,7 @@ int main(){
 
 static void setup(){
     InitWindow(widthScreen, heightScreen, "snake window raylib");
-    SetTargetFPS(60);
+    SetTargetFPS(1000);
 
 
     camera.offset = Vector2{widthScreen/2.0f, heightScreen/2.0f};
@@ -74,8 +82,12 @@ static void setup(){
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    float timer = 0.0f;
-    float interval = 0.7f;
+    float timerColor = 0.0f;
+    float intervalColor = 0.7f;
+
+    float timerRectangle = 0.0f;
+    float intervalRectangle = 1.0f;
+
 
     Color recColora =  randomColor();
     Color recColorb =  randomColor();
@@ -84,6 +96,7 @@ static void setup(){
     
     
         camera.zoom = expf(logf(camera.zoom) + ((float)GetMouseWheelMove()*0.1f));
+        
 
         //camera.zoom += GetMouseWheelMove() * 0.1f;
         
@@ -92,30 +105,81 @@ static void setup(){
         
         BeginMode2D(camera);
             float dt = GetFrameTime();
-            timer += dt;
-
+            timerColor += dt;
+            timerRectangle += dt;
             
+            std::cout << "xPos_right :  " << xPos_right 
+                      << "xPos_left :  " << xPos_left 
+                      << "|| timer Rectangle: " << timerRectangle 
+                      << std::endl;
 
-            if(timer >= interval){
-                timer = 0.0f;
+             // get random color
+            if(timerColor >= intervalColor){
+                timerColor = 0.0f;
                 recColora =  randomColor();
                 recColorb =  randomColor();
             }
 
-            DrawRectangleRec(rectangle, recColora);
-            DrawRectangleRec(makeRectangle(3,5), recColorb);
+
+            drawPatternRectangle(makeRectangle(10,yPos_state), recColora);  
+
+
+            if(yPos_state % 2 != 0){
+                drawPatternRectangle(makeRectangle(xPos_right,yPos_state), recColora);
+            } else {
+                drawPatternRectangle(makeRectangle(xPos_left,yPos_state), recColora);
+            }
+
+            if(timerRectangle >= intervalRectangle){
+                timerRectangle = 0.0f;
+                
+                if(xPos_right > 10){
+                    xPos_right = 1;
+                }
+                if(xPos_left < 1){
+                    xPos_left = 10;
+                }
+
+                if(yPos_state == 10){
+                    yPos_state = 1;
+                }
+                
+
+                // moving rectangle 
+                if(yPos_state % 2 != 0){
+                    xPos_right++;
+                } else {
+                    xPos_left--;
+                }
+                    state_delay++;
+
+
+            
+            } 
+
+            if(state_delay == 10){
+                state_delay = 1;
+                yPos_state++;
+            }
+
+         
+            
+                    
+
+            
+            
+           
+
+            //DrawRectangleRec(rectangle, recColora);
+            // DrawRectangleRec(makeRectangle(10,10), recColorb);
 
             DrawText(TextFormat("width: %i \nheigth: %i",GetScreenWidth(),GetScreenHeight()),20,30,30, BLUE);
-            DrawText(TextFormat("getframetime: %f",dt),20,80,30, BLUE);
+            DrawText(TextFormat("getframetime: %f",dt),20,100,30, BLUE);
             DrawFPS(10, 10);
             drawGrid();
             ClearBackground(WHITE);
 
            
-          
-           
-           
-
         EndMode2D();
         EndDrawing();
 
@@ -123,6 +187,11 @@ static void setup(){
     CloseWindow();
     
 }
+
+// ==============================================================
+                    /*  function    */
+//===============================================================
+
 
 // draw grid based width and height window
 static void drawGrid(){
@@ -156,6 +225,8 @@ static Color randomColor(){
     };
 }
 
+
+// make rectangle
 static Rectangle makeRectangle(int x, int y){
 
     int x_awal = x - 1;
@@ -167,3 +238,8 @@ static Rectangle makeRectangle(int x, int y){
         60
     };
 }
+
+static void drawPatternRectangle(Rectangle rec, Color color){
+    DrawRectangleRec(rec, color);
+}
+
