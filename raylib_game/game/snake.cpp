@@ -32,12 +32,9 @@ static const int rowSize =  80;
 static const int col = 10;
 static const int row = 10;
 
-
-static int xPos_right = 0;
-static int xPos_left = 10;
-static int yPos_state = 1;
-static int loop_state = 0;
-
+static int xPos = 1;
+static int yPos = 0;
+static int xPos_state = 1;
 
 Camera2D camera = { 0 };
 Rectangle rectangle = {400,300,80,60};
@@ -85,10 +82,10 @@ static void setup(){
     float intervalColor = 0.7f;
 
     float timerRectangle = 0.0f;
-    float intervalRectangle = 0.1f;
+    float intervalRectangle = 0.4f;
 
-    bool isRight = false;
-    bool isLeft = false;
+    bool isAbove = false;
+    bool isBottom = false;
 
 
     Color recColora =  randomColor();
@@ -110,53 +107,53 @@ static void setup(){
             timerColor += dt;
             timerRectangle += dt;
             
-            std::cout << "xPos_right :  " << xPos_right 
-                      << "xPos_left :  "  << xPos_left 
+            std::cout << "yPos:  " << yPos
+                      << "xPos: "  << xPos
                       << "|| timer Rectangle: " << timerRectangle 
-                      << " ypos_state: " << yPos_state 
                       << std::endl;
 
              // get random color
             if(timerColor >= intervalColor){
                 timerColor = 0.0f;
-                recColora =  randomColor();
+               // recColora =  randomColor();
                 recColorb =  randomColor();
             }
 
 
-            if(isRight)
+            if(isBottom)
             {
-                xPos_right = 1;
-                isRight = false;
+                yPos = 10;
+                isBottom = false;
             } 
 
-            if(isLeft){
-                xPos_left = 10;
-                isLeft = false;
+            if(isAbove){
+                yPos = 1;
+                isAbove = false;
             }
             
            
             if(timerRectangle >= intervalRectangle){
+                recColora = randomColor();
                 
                 timerRectangle = 0.0f;
                 
                 // moving rectangle 
-                if(yPos_state % 2 != 0){
-                    xPos_right++;
-                    if(xPos_right > 10){
-                        isRight = true;
-                        yPos_state++;
+                if(xPos % 2 != 0){
+                    yPos++;
+                    if(yPos> 10){
+                        isBottom= true;
+                        xPos++;
                     }
                 } else {
-                    xPos_left--;
-                    if(xPos_left < 1){
-                        isLeft = true;
-                        yPos_state++;
+                    yPos--;
+                    if(yPos < 1){
+                        isAbove = true;
+                        xPos++;
                     }
                 }
                 
-              if(yPos_state > 10){
-                yPos_state = 1;
+              if(xPos > 10){
+                xPos = 1;
               }
                 
               
@@ -164,16 +161,16 @@ static void setup(){
             } 
 
         
-            if(yPos_state % 2 != 0 && xPos_right >= 1 && xPos_right <= 10){
-                drawPatternRectangle(makeRectangle(xPos_right,yPos_state), recColora);
-            } else if(xPos_left <= 10 && xPos_left >= 1) {
-                drawPatternRectangle(makeRectangle(xPos_left,yPos_state), recColora);
+            if(xPos % 2 != 0 && yPos <= 10 && yPos >= 1){
+                drawPatternRectangle(makeRectangle(xPos,yPos), recColora);
+            } else if(yPos <= 10 && yPos >= 1) {
+                drawPatternRectangle(makeRectangle(xPos,yPos),recColora);
             }
 
     
             DrawText(TextFormat("width: %i \nheigth: %i",GetScreenWidth(),GetScreenHeight()),20,30,30, BLUE);
             DrawText(TextFormat("getframetime: %f",dt),20,100,30, BLUE);
-            DrawText(TextFormat("xPos_right: %d\n xPos_left: %d", xPos_right, xPos_left),20,130,20,RED);
+            DrawText(TextFormat("xPos: %d\n yPos: %d", xPos, yPos),20,130,20,RED);
             DrawFPS(10, 10);
             drawGrid();
             ClearBackground(WHITE);
